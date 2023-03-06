@@ -5,17 +5,28 @@ const Home = () => {
   const [searchString, setSearchString] = useState('');
   const [apiData, setApiData] = useState(null);
   const [apiDataError, setApiDataError] = useState(null);
+  const [searchOptions, setSearchOptions] = useState('shows');
 
+  console.log(searchOptions);
   const onSearchInputChange = event => {
     setSearchString(event.target.value);
+  };
+
+  const onRadioChange = event => {
+    setSearchOptions(event.target.value);
   };
 
   const onSearch = async event => {
     event.preventDefault();
     try {
       setApiDataError(null);
-      const result = await searchForShows(searchString);
-      setApiData(result);
+      if (searchOptions === 'shows') {
+        const result = await searchForShows(searchString);
+        setApiData(result);
+      } else {
+        const result = await searchForShows(searchString);
+        setApiData(result);
+      }
     } catch (error) {
       setApiDataError(error);
     }
@@ -27,9 +38,11 @@ const Home = () => {
     }
 
     if (apiData) {
-      return apiData.map(data => (
-        <div key={data.show.id}>{data.show.name}</div>
-      ));
+      return apiData[0].show
+        ? apiData.map(data => <div key={data.show.id}>{data.show.name}</div>)
+        : apiData.map(data => (
+            <div key={data.person.id}>{data.person.name}</div>
+          ));
     }
 
     return null;
@@ -38,6 +51,26 @@ const Home = () => {
   return (
     <div>
       <form onSubmit={onSearch}>
+        <label>
+          Shows
+          <input
+            type="radio"
+            name="search-options"
+            value="shows"
+            onChange={onRadioChange}
+            checked={searchOptions === 'shows'}
+          />
+        </label>
+        <label>
+          Actors
+          <input
+            type="radio"
+            name="search-options"
+            value="actors"
+            onChange={onRadioChange}
+            checked={searchOptions === 'actors'}
+          />
+        </label>
         <input
           type="text"
           onChange={onSearchInputChange}
